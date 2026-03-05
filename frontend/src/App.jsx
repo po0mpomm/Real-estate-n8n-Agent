@@ -20,8 +20,8 @@ function App() {
     setPredictionResult(null);
 
     try {
-      // Send data to the n8n Global Production Webhook (nested path)
-      const response = await fetch('https://0f42-2402-e280-21c6-91d-f15c-44ad-1a26-e1e1.ngrok-free.app/webhook/https://4afb-2402-e280-21c6-91d-f15c-44ad-1a26-e1e1.ngrok-free.app/predict', {
+      // Send data to the n8n Global Production Webhook
+      const response = await fetch('https://0f42-2402-e280-21c6-91d-f15c-44ad-1a26-e1e1.ngrok-free.app/webhook/predict', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
