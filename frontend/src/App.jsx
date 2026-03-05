@@ -20,8 +20,8 @@ function App() {
     setPredictionResult(null);
 
     try {
-      // Send data to the n8n Production Webhook
-      const response = await fetch('http://localhost:5678/webhook/https://4afb-2402-e280-21c6-91d-f15c-44ad-1a26-e1e1.ngrok-free.app/predict', {
+      // Send data to the n8n Webhook
+      const response = await fetch('http://localhost:5678/webhook-test/https://4afb-2402-e280-21c6-91d-f15c-44ad-1a26-e1e1.ngrok-free.app/predict', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
