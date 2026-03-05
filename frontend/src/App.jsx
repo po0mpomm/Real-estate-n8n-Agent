@@ -19,35 +19,47 @@ function App() {
     setIsPredicting(true);
     setPredictionResult(null);
 
-    // Simulated API delay before using fallback data
-    setTimeout(() => {
-      let pps = fallbackData['_global_avg']; // default baseline
-      const bhkStr = String(data.bhk);
+    try {
+      // Send data to the n8n Webhook
+      const response = await fetch('http://localhost:5678/webhook-test/https://4afb-2402-e280-21c6-91d-f15c-44ad-1a26-e1e1.ngrok-free.app/predict', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          totalSqft: Number(data.totalSqft),
+          bathrooms: Number(data.bathrooms),
+          bhk: Number(data.bhk),
+          location: data.location
+        })
+      });
 
-      if (fallbackData[data.location]) {
-        if (fallbackData[data.location][bhkStr]) {
-          pps = fallbackData[data.location][bhkStr];
-        } else {
-          // Average for that specific location across all BHKs
-          const vals = Object.values(fallbackData[data.location]);
-          if (vals.length > 0) pps = vals.reduce((a, b) => a + b, 0) / vals.length;
-        }
-      } else if (fallbackData['_city_avg_bhk'] && fallbackData['_city_avg_bhk'][bhkStr]) {
-        pps = fallbackData['_city_avg_bhk'][bhkStr];
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
       }
 
-      // Calculate final price: Price in Lakhs
-      const finalPrice = ((data.totalSqft * pps) / 100000).toFixed(2);
+      // n8n should be configured to return the final price calculation from the python ML endpoint back to the frontend
+      const resultData = await response.json();
+
+      // We expect the n8n response to contain the prediction. 
+      // If it passes the exact python response through, it will be in resultData.predicted_price_lakhs
+      // If n8n returns something else, we fallback.
+      const finalPrice = resultData.predicted_price_lakhs || resultData.price || "Error";
 
       setPredictionResult(finalPrice);
+
+    } catch (error) {
+      console.error("Error calling n8n webhook:", error);
+      setPredictionResult("Unavailable");
+    } finally {
       setIsPredicting(false);
 
       // Auto scroll to result after short delay
       setTimeout(() => {
         window.scrollBy({ top: 400, behavior: 'smooth' });
       }, 100);
-
-    }, 1500); // 1.5s delay for realistic feel
+    }
   };
 
   return (

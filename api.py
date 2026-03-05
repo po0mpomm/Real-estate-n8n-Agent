@@ -20,6 +20,17 @@ class PredictionRequest(BaseModel):
     bhk: int
     location: str
 
+@app.get("/")
+async def root():
+    return {
+        "message": "Welcome to the Dwello.AI Machine Learning API!",
+        "endpoints": {
+            "/predict": "POST - Submit JSON with totalSqft, bathrooms, bhk, and location",
+            "/docs": "GET - View Interactive Swagger Documentation",
+            "/health": "GET - Check API and Model Status"
+        }
+    }
+
 @app.post("/predict")
 async def predict_price(request: PredictionRequest):
     if not model:
@@ -57,3 +68,7 @@ async def predict_price(request: PredictionRequest):
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "model_loaded": model is not None}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("api:app", host="127.0.0.1", port=8000, reload=True)
