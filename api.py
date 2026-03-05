@@ -47,7 +47,7 @@ async def predict_price(request: PredictionRequest):
         input_data = pd.DataFrame([{
             "total_sqft_num": request.totalSqft,
             "bath": request.bathrooms,
-            "bhk": request.bhk,
+            "BHK": request.bhk,
             "location_bucket": request.location
         }])
 
@@ -71,4 +71,4 @@ async def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("api:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("api:app", host="127.0.0.1", port=8000, reload=True) 
