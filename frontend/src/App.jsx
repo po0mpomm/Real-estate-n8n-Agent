@@ -21,7 +21,7 @@ function App() {
 
     try {
       // Send data to the n8n Local Production Webhook
-      const response = await fetch('http://localhost:5678/webhook/predict', {
+      const response = await fetch('/webhook/predict', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

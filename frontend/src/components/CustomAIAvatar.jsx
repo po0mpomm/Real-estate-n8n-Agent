@@ -19,7 +19,7 @@ const CustomAIAvatar = () => {
         if (chatBody) chatBody.scrollTop = chatBody.scrollHeight;
     }, [messages, isTyping]);
 
-    const handleSend = (e) => {
+    const handleSend = async (e) => {
         e.preventDefault();
         if (!input.trim()) return;
 
@@ -28,14 +28,37 @@ const CustomAIAvatar = () => {
         setInput("");
         setIsTyping(true);
 
-        // Mock AI Response (This is where n8n webhook call will go in the future)
-        setTimeout(() => {
+        try {
+            // Send the user message to the new n8n chatbot workflow
+            // Note: In n8n, ensure the Webhook node is set to POST method and Path is "chat"
+            const response = await fetch('/webhook-test/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ message: input })
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+
+            // n8n LLM Chain usually returns the response text in data.output, data.text, or data.response.
+            const aiResponseText = data.output || data.text || data.response || (typeof data === 'string' ? data : "I received your message, but check the n8n response format.");
+
+            setMessages(prev => [...prev, { text: aiResponseText, sender: 'ai' }]);
+        } catch (error) {
+            console.error("Error communicating with AI Chatbot Webhook:", error);
             setMessages(prev => [...prev, {
-                text: "I am currently running in offline UI mode. Once connected to n8n, I will reason over your real estate query here!",
+                text: "Sorry, I am currently unable to reach the n8n AI agent. Please ensure the new webhook is active.",
                 sender: 'ai'
             }]);
+        } finally {
             setIsTyping(false);
-        }, 1500);
+        }
     };
 
     return (
